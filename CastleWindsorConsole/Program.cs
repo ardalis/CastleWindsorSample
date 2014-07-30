@@ -17,12 +17,12 @@ namespace CastleWindsorConsole
         }
     }
 
-        public interface IWriter
+    public interface IWriter
     {
         void WriteLine(string message);
     }
 
-    class ConsoleWriter : IWriter
+    public class ConsoleWriter : IWriter
     {
         public void WriteLine(string message)
         {
@@ -57,24 +57,28 @@ namespace CastleWindsorConsole
         static void Main(string[] args)
         {
             var container = new WindsorContainer();
+
+            // register interfaces and their implementations
+            //container.Register(Component.For<IGreeting>()
+            //    .ImplementedBy<HelloGreeting>());
+            //container.Register(Component.For<IWriter>()
+            //    .ImplementedBy<ConsoleWriter>());
+
             // register one type at a time
             // container.Register(Component.For<Greeter>());
-            // or
-            // register all types in an assembly matching some criteria
-            container.Register(Classes.FromThisAssembly().Where(t => t.Name.EndsWith("Greeter")));
-            
-            // register interfaces and their implementations
-            container.Register(Component.For<IGreeting>()
-                .ImplementedBy<HelloGreeting>());
-            container.Register(Component.For<IWriter>()
-                .ImplementedBy<ConsoleWriter>());
+
+            // or register all types in an assembly matching some criteria
+            container.Register(Classes.FromThisAssembly()
+                //.Where(t => t.Name.EndsWith("Greeter")));
+                .InNamespace("CastleWindsorConsole")
+                .WithServiceDefaultInterfaces()); // similar to StructureMap's WithDefaultConventions
 
             // show contents of container
             foreach (var handler in container.Kernel
                 .GetAssignableHandlers(typeof(object)))
             {
-                Console.WriteLine("{0} {1}", 
-                   handler.ComponentModel.Services, 
+                Console.WriteLine("{0} {1}",
+                   handler.ComponentModel.Services,
                    handler.ComponentModel.Implementation);
             }
 
